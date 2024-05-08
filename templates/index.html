@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard de Scripts{% endblock %}
+
+{% block body %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Scripts</title>
+    <link href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        img{
+            width: 350px;
+        }
+        .container {
+            width: 95%;
+            max-width: 960px;
+            text-align: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+            width: 45%;
+        }
+        button:hover {
+            background-color: rgb(50, 94, 53);
+        }
+        .chart-container {
+            width: 30%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    
+<img src="{{ url_for('static', filename='TAUA.png') }}" alt="Imagem de Tauá">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="chart-container" >
+    <canvas id="myChart"></canvas>
+</div>
+
+<script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: {{ pie_chart_data.labels | tojson }},
+            datasets: [{
+                label: 'Número de Alunos',
+                data: {{ pie_chart_data.data | tojson }},
+                backgroundColor: [
+                            '#45a049',
+                            'rgb(50, 94, 53)'
+                ],
+                borderColor: [
+                            '#45a049',
+                            'rgb(50, 94, 53)'
+                ],
+                borderWidth: 1
+            }]
+        }
+    });
+</script>
+    <div class="container">
+        <h1>Escolha um Relatório para Executar</h1>
+        <div class="button-container">
+            {% for script in scripts %}
+            <button onclick="location.href='/execute?script={{ script }}&display=tabela'" type="button">
+                {{ script.replace('.py', '') | replace('_', ' ') | title }}
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+
+   
+</body>
+{% endblock %}
