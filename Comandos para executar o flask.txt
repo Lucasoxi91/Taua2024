@@ -15,7 +15,7 @@ git commit -m "Mensagem"
 
 git remote add origin *url do repositório no git* (apenas para novos repositórios)
 
-git push -u origin master
+git push -f origin master
 
 
 RODAR NO CONSOLE DO HEROKU = gunicorn app:app --workers=4 --timeout=120 --bind=0.0.0.0:8000
