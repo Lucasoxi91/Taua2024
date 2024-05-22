@@ -158,21 +158,17 @@
     </div>
     <script>
         $(document).ready(function() {
-            // Inicializa a tabela DataTable
             var table = $('#resultsTable').DataTable({
                 responsive: true,
                 fixedHeader: true,
                 scrollX: true,
                 autoWidth: true,
-                colResize: true ,
-                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-                dom: 'lfrtip'
+                dom: 'lfrtip',
+                language: {
+                    searchPlaceholder: "Clique"
+                }
             });
 
-            // Adiciona a funcionalidade de redimensionamento
-            new $.fn.dataTable.ColReorder(table);
-
-            // Aplica os filtros de coluna usando yadcf
             yadcf.init(table, [
                 {% for i in range(columns|length) %}
                 { 
@@ -181,14 +177,16 @@
                     select_type: 'select2', 
                     select_type_options: { 
                         width: '100%', 
-                        closeOnSelect: false,
-                        placeholder: 'Clique'
+                        closeOnSelect: false 
                     },
-                    filter_reset_button_text: false 
+                    filter_reset_button_text: false,
+                    filter_default_label: "Clique"
                 }
                 {% if not loop.last %},{% endif %}
                 {% endfor %}
             ]);
+
+            table.columns.adjust().draw();
         });
     </script>
 </body>
