@@ -22,8 +22,7 @@
     <script src="https://cdn.datatables.net/resizable/1.0.0/js/dataTables.resizable.min.js"></script>
  
 
-<style>
- 
+    <style>
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f7f6;
@@ -34,7 +33,7 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            }
+        }
         .header {
             display: flex;
             justify-content: space-between;
@@ -59,24 +58,27 @@
             outline: none;
         }
         .table-container {
-            overflow-x: auto;  /* Enables horizontal scrolling */
+            width: 100%;
+            overflow-x: auto;
         }
-        table { 
-            margin-bottom: 0;
-            margin: 20px 0;
-            table-layout: fixed; /* Ensure table layout is auto */
+        table {
+            width: 100%;
+            table-layout: auto;
+            margin-bottom: 20px;
+            border-collapse: collapse;
         }
         th, td {
             text-align: center;
             padding: 10px;
             font-size: 16px;
-            word-wrap: break-word; /* Ensure long words wrap to the next line */
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
         }
         tr:nth-child(even) {
             background-color: #f2f2f2;
-        }
-        .table-container {
-            overflow-x: auto;  /* Enables horizontal scrolling */
         }
         #resultsTable_filter {
             display: none;
@@ -99,20 +101,12 @@
         }
         .dataTables_wrapper .dataTables_paginate .paginate_button.current {
             background: none;
-        }        .dataTables_scrollBody {
-            overflow: auto;
-            width: 100%;
         }
         .dataTables_scrollHead {
             overflow: hidden;
         }
         .dataTables_scrollHeadInner {
             width: 100% !important;
-        }
-        th, td {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
     </style>
 </head>
