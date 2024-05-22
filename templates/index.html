@@ -23,7 +23,7 @@
             justify-content: center;
             min-height: 100vh;
         }
-        img{
+        img {
             width: 350px;
         }
         .container {
@@ -63,47 +63,41 @@
     </style>
 </head>
 <body>
-    
-<img src="{{ url_for('static', filename='TAUA.png') }}" alt="Imagem de Tauá">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<div class="chart-container" >
-    <canvas id="myChart"></canvas>
-</div>
-
-<script>
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var myChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: {{ pie_chart_data.labels | tojson }},
-            datasets: [{
-                label: 'Número de Alunos',
-                data: {{ pie_chart_data.data | tojson }},
-                backgroundColor: [
-                            '#45a049',
-                            'rgb(50, 94, 53)'
-                ],
-                borderColor: [
-                            '#45a049',
-                            'rgb(50, 94, 53)'
-                ],
-                borderWidth: 1
-            }]
-        }
-    });
-</script>
+    <img src="{{ url_for('static', filename='TAUA.png') }}" alt="Imagem de Tauá">
+    <div class="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: {{ pie_chart_data.labels | tojson }},
+                datasets: [{
+                    label: 'Número de Alunos',
+                    data: {{ pie_chart_data.data | tojson }},
+                    backgroundColor: [
+                        '#45a049',
+                        'rgb(50, 94, 53)'
+                    ],
+                    borderColor: [
+                        '#45a049',
+                        'rgb(50, 94, 53)'
+                    ],
+                    borderWidth: 1
+                }]
+            }
+        });
+    </script>
     <div class="container">
         <h1>Escolha um Relatório para Executar</h1>
         <div class="button-container">
             {% for script in scripts %}
-            <button onclick="location.href='/execute?script={{ script }}&display=tabela'" type="button">
+            <button onclick="location.href='{{ url_for('tabela') }}?script_name={{ script }}'" type="button">
                 {{ script.replace('.py', '') | replace('_', ' ') | title }}
             </button>
             {% endfor %}
         </div>
     </div>
-
-   
 </body>
 {% endblock %}

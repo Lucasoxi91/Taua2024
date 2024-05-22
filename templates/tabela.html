@@ -1,16 +1,40 @@
 {% extends 'base.html' %}
 
-{% block title %}Resultado da Consulta em Tabela{% endblock %}
+{% block title %}Resultados da Consulta{% endblock %}
 
 {% block body %}
-<link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css">
-<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-<script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados da Consulta</title>
+    <link href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/fixedheader/3.1.8/css/fixedHeader.dataTables.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/yadcf@0.9.4/jquery.dataTables.yadcf.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/resizable/1.0.0/css/dataTables.resizable.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+     <script src="https://cdn.datatables.net/fixedheader/3.1.8/js/dataTables.fixedHeader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/yadcf@0.9.4/jquery.dataTables.yadcf.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.datatables.net/resizable/1.0.0/js/dataTables.resizable.min.js"></script>
+    
 
-<div class="container">
-    <style>
+<style>
+ 
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            }
         .header {
             display: flex;
             justify-content: space-between;
@@ -37,24 +61,81 @@
         .table-container {
             overflow-x: auto;  /* Enables horizontal scrolling */
         }
-        table {
-            width: 100% !important;
+        table { 
             margin-bottom: 0;
+            margin: 20px 0;
+            table-layout: fixed; /* Ensure table layout is auto */
+        }
+        th, td {
+            text-align: center;
+            padding: 10px;
+            font-size: 16px;
+            word-wrap: break-word; /* Ensure long words wrap to the next line */
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .table-container {
+            overflow-x: auto;  /* Enables horizontal scrolling */
+        }
+        #resultsTable_filter {
+            display: none;
+        }
+        tfoot input {
+            width: 100%;
+            padding: 3px;
+            box-sizing: border-box;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 0;
+            margin-left: -2px;
+        }
+        .dataTables_scrollBody {
+            overflow: auto;
+            width: 100%;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: none;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: none;
+        }        .dataTables_scrollBody {
+            overflow: auto;
+            width: 100%;
+        }
+        .dataTables_scrollHead {
+            overflow: hidden;
+        }
+        .dataTables_scrollHeadInner {
+            width: 100% !important;
+        }
+        th, td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
-    <a href='https://taua2024-5674f4a1f8a4.herokuapp.com/' class="btn">Voltar </a><br>
-    <h1>Resultados em Tabela</h1>
+</head>
+<body>
+    <h1>Resultados da Consulta</h1>    
     <div class="table-container">
-        <table id="resultsTable" class="display responsive nowrap" style="width:100%">
+        <table id="resultsTable" class="display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    {% for name in column_names %}
-                    <th>{{ name }}</th>
+                    {% for col_name in columns %}
+                    <th>{{ col_name }}</th>
                     {% endfor %}
                 </tr>
             </thead>
+            <tfoot>
+                <tr>
+                    {% for col_name in columns %}
+                    <th></th>
+                    {% endfor %}
+                </tr>
+            </tfoot>
             <tbody>
-                {% for row in query_results %}
+                {% for row in data %}
                 <tr>
                     {% for cell in row %}
                     <td>{{ cell }}</td>
@@ -64,23 +145,34 @@
             </tbody>
         </table>
     </div>
-    <form action="/download_csv" method="post">
-        <input type="hidden" name="script" value="{{ request.form.script }}">
-        <input type="submit" value="Download CSV">
-    </form>
-</div>
+    <script>
+        $(document).ready(function() {
+            // Inicializa a tabela DataTable
+            var table = $('#resultsTable').DataTable({
+                responsive: false,
+                fixedHeader: true,
+                scrollX: true,
+                autoWidth: true,
+                dom: 'Bfrtip'
+            });
 
-<script>
-$(document).ready(function() {
-    if ($.fn.dataTable.isDataTable('#resultsTable')) {
-        $('#resultsTable').DataTable().clear().destroy();
-    }
-    $('#resultsTable').DataTable({
-        responsive: false,  // Disable responsive features
-        autoWidth: true,
-        scrollX: true  // Enable horizontal scrolling
-    });
-});
-</script>
-
+            // Aplica os filtros de coluna usando yadcf
+            yadcf.init(table, [
+                {% for i in range(columns|length) %}
+                { 
+                    column_number: {{ i }}, 
+                    filter_type: "multi_select", 
+                    select_type: 'select2', 
+                    select_type_options: { 
+                        width: '100%', 
+                        closeOnSelect: false 
+                    },
+                    filter_reset_button_text: false 
+                }
+                {% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]);
+        });
+    </script>
+</body>
 {% endblock %}
