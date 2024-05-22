@@ -14,6 +14,7 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/resizable/1.0.0/css/dataTables.resizable.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/colreorder/1.5.3/css/colReorder.dataTables.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/colvis/1.1.2/css/dataTables.colVis.min.css" rel="stylesheet">
 
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
@@ -23,7 +24,6 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.datatables.net/resizable/1.0.0/js/dataTables.resizable.min.js"></script>
     <script src="https://cdn.datatables.net/colreorder/1.5.3/js/dataTables.colReorder.min.js"></script>
-    <script src="https://cdn.datatables.net/colreorder/1.5.3/js/colReorder.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/colvis/1.1.2/js/dataTables.colVis.min.js"></script>
 
     <style>
@@ -58,7 +58,7 @@
             transition: background-color 0.2s;
         }
         .btn:hover, .btn:focus {
-            background-color: #00b300;
+            background-color: #239a17;
             color: #fff;
             outline: none;
         }
@@ -82,7 +82,7 @@
             text-overflow: ellipsis;
         }
         th {
-            background-color: #007bff;
+            background-color: #2ab31d;
             color: white;
         }
         tr:nth-child(even) {
@@ -123,9 +123,10 @@
     </style>
 </head>
 <body>
-    <h1>Resultados da Consulta</h1>  
-    
-    <a href='https://taua2024-5674f4a1f8a4.herokuapp.com/' class="btn">Voltar </a><br>
+    <div class="header">
+        <h1>Resultados da Consulta</h1>
+        <a href="#" class="btn">Voltar</a>
+    </div>
     <div class="table-container">
         <table id="resultsTable" class="display nowrap" style="width:100%">
             <thead>
@@ -149,39 +150,42 @@
                     <td>{{ cell }}</td>
                     {% endfor %}
                 </tr>
-                {% endfor %}
+            {% endfor %}
             </tbody>
         </table>
     </div>
-  <script>
-    $(document).ready(function() {
-        // Inicializa a tabela DataTable
-        var table = $('#resultsTable').DataTable({
-            responsive: true,
-            fixedHeader: true,
-            scrollX: true,
-            autoWidth: true,
-            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-            dom: 'lfrtip'
-        });
+    <script>
+        $(document).ready(function() {
+            // Inicializa a tabela DataTable
+            var table = $('#resultsTable').DataTable({
+                responsive: true,
+                fixedHeader: true,
+                scrollX: true,
+                autoWidth: true,
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                dom: 'lfrtip'
+            });
 
-        // Aplica os filtros de coluna usando yadcf
-        yadcf.init(table, [
-            {% for i in range(columns|length) %}
-            { 
-                column_number: {{ i }}, 
-                filter_type: "multi_select", 
-                select_type: 'select2', 
-                select_type_options: { 
-                    width: '100%', 
-                    closeOnSelect: false 
-                },
-                filter_reset_button_text: false 
-            }
-            {% if not loop.last %},{% endif %}
-            {% endfor %}
-        ]);
-    });
-</script>
+            // Adiciona a funcionalidade de redimensionamento
+            new $.fn.dataTable.ColReorder(table);
+
+            // Aplica os filtros de coluna usando yadcf
+            yadcf.init(table, [
+                {% for i in range(columns|length) %}
+                { 
+                    column_number: {{ i }}, 
+                    filter_type: "multi_select", 
+                    select_type: 'select2', 
+                    select_type_options: { 
+                        width: '100%', 
+                        closeOnSelect: false 
+                    },
+                    filter_reset_button_text: false 
+                }
+                {% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]);
+        });
+    </script>
 </body>
 {% endblock %}
