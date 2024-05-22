@@ -141,35 +141,35 @@
             </tbody>
         </table>
     </div>
-    <script>
-        $(document).ready(function() {
-            // Inicializa a tabela DataTable
-            var table = $('#resultsTable').DataTable({
-                responsive: false,
-                fixedHeader: true,
-                scrollX: true,
-                autoWidth: true,
-              lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-                dom: 'Bfrtip'
-            });
-
-            // Aplica os filtros de coluna usando yadcf
-            yadcf.init(table, [
-                {% for i in range(columns|length) %}
-                { 
-                    column_number: {{ i }}, 
-                    filter_type: "multi_select", 
-                    select_type: 'select2', 
-                    select_type_options: { 
-                        width: '100%', 
-                        closeOnSelect: false 
-                    },
-                    filter_reset_button_text: false 
-                }
-                {% if not loop.last %},{% endif %}
-                {% endfor %}
-            ]);
+  <script>
+    $(document).ready(function() {
+        // Inicializa a tabela DataTable
+        var table = $('#resultsTable').DataTable({
+            responsive: true,
+            fixedHeader: true,
+            scrollX: true,
+            autoWidth: true,
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+            dom: 'lfrtip'
         });
-    </script>
+
+        // Aplica os filtros de coluna usando yadcf
+        yadcf.init(table, [
+            {% for i in range(columns|length) %}
+            { 
+                column_number: {{ i }}, 
+                filter_type: "multi_select", 
+                select_type: 'select2', 
+                select_type_options: { 
+                    width: '100%', 
+                    closeOnSelect: false 
+                },
+                filter_reset_button_text: false 
+            }
+            {% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]);
+    });
+</script>
 </body>
 {% endblock %}
