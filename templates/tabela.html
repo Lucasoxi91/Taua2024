@@ -181,11 +181,18 @@
                         closeOnSelect: false,
                         placeholder: 'Clique'
                     },
+                    filter_container_id: "multi-select-{{ i }}",
                     filter_reset_button_text: false 
                 }
                 {% if not loop.last %},{% endif %}
                 {% endfor %}
             ]);
+
+            // Configurar o placeholder do Select2
+            $('.yadcf-filter-select2').select2({
+                placeholder: 'Clique',
+                width: 'resolve'
+            });
         });
     </script>
 </body>
