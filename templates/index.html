@@ -72,21 +72,25 @@
         var myChart = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: {{ pie_chart_data.labels | tojson }},
-                datasets: [{
-                    label: 'Número de Alunos',
-                    data: {{ pie_chart_data.data | tojson }},
-                    backgroundColor: [
-                        '#45a049',
-                        'rgb(50, 94, 53)'
-                    ],
-                    borderColor: [
-                        '#45a049',
-                        'rgb(50, 94, 53)'
-                    ],
-                    borderWidth: 1
-                }]
-            }
+            labels: {{ pie_chart_data.labels | tojson }},
+            datasets: [{
+                label: 'Número de Alunos Matriculados',
+                data: {{ pie_chart_data.data | tojson }},
+                backgroundColor: [
+                    '#45a049',
+                    'rgb(50, 94, 53)',
+                    '#4CAF50',
+                    '#2ab31d'
+                ],
+                borderColor: [
+                    '#45a049',
+                    'rgb(50, 94, 53)',
+                    '#4CAF50',
+                    '#2ab31d'
+                ],
+                borderWidth: 1
+            }]
+        }
         });
     </script>
     <div class="container">
