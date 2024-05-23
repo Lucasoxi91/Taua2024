@@ -66,35 +66,68 @@ def fetch_pie_chart_data():
     try:
         with conn.cursor() as cur:
             cur.execute("""
+                WITH Alunos8Ano AS (
+                    SELECT 
+                        i.id AS institution_id,
+                        i.name AS institution_name,
+                        COUNT(DISTINCT ie.user_id) AS alunos_8ano
+                    FROM 
+                        institution_enrollments ie
+                    INNER JOIN institution_classrooms ic ON ic.id = ie.classroom_id  
+                    INNER JOIN institution_levels il ON il.id = ic.level_id 
+                    INNER JOIN institution_courses ic3 ON ic3.id = il.course_id 
+                    INNER JOIN institution_colleges ic2 ON ic2.id = ic3.institution_college_id 
+                    INNER JOIN institutions i ON i.id = ic2.institution_id
+                    INNER JOIN regions r ON ic2.region_id = r.id 
+                    INNER JOIN cities c ON c.id = r.city_id 
+                    WHERE i.name ILIKE '%2024%'
+                    AND c.name = 'Tauá'
+                    AND i.id IN (335, 337)
+                    AND ic.name ILIKE '%8° ano%'
+                    GROUP BY i.id, i.name
+                ),
+                TodosAlunosMatriculados AS (
+                    SELECT 
+                        i.id AS institution_id,
+                        i.name AS institution_name,
+                        COUNT(DISTINCT ie.user_id) AS alunos_matriculados
+                    FROM 
+                        institution_enrollments ie
+                    INNER JOIN institution_classrooms ic ON ic.id = ie.classroom_id  
+                    INNER JOIN institution_levels il ON il.id = ic.level_id 
+                    INNER JOIN institution_courses ic3 ON ic3.id = il.course_id 
+                    INNER JOIN institution_colleges ic2 ON ic2.id = ic3.institution_college_id 
+                    INNER JOIN institutions i ON i.id = ic2.institution_id
+                    INNER JOIN regions r ON ic2.region_id = r.id 
+                    INNER JOIN cities c ON c.id = r.city_id 
+                    WHERE i.name ILIKE '%2024%'
+                    AND c.name = 'Tauá'
+                    AND i.id IN (335, 336, 337, 338)
+                    AND ic.name NOT ILIKE '%8° ano%'
+                    GROUP BY i.id, i.name
+                )
                 SELECT 
-                    i.id AS institution_id,
-                    i.name AS institution_name,
-                    COUNT(DISTINCT ie.user_id) AS total_matriculados
+                    T.institution_id,
+                    T.institution_name,
+                    COALESCE(T.alunos_matriculados, 0) AS total_matriculados,
+                    COALESCE(A.alunos_8ano, 0) AS alunos_8ano
                 FROM 
-                    institution_enrollments ie
-                INNER JOIN institution_classrooms ic ON ic.id = ie.classroom_id  
-                INNER JOIN institution_levels il ON il.id = ic.level_id 
-                INNER JOIN institution_courses ic3 ON ic3.id = il.course_id 
-                INNER JOIN institution_colleges ic2 ON ic2.id = ic3.institution_college_id 
-                INNER JOIN institutions i ON i.id = ic2.institution_id
-                INNER JOIN regions r ON ic2.region_id = r.id 
-                INNER JOIN cities c ON c.id = r.city_id 
-                WHERE i.name ILIKE '%2024%'
-                AND c.name = 'Tauá' 
-                AND i.id IN (335, 336, 337, 338) -- Filtro específico para as instituições com os IDs fornecidos
-                GROUP BY i.id, i.name
-                ORDER BY i.id;
+                    TodosAlunosMatriculados T
+                LEFT JOIN Alunos8Ano A 
+                    ON T.institution_id = A.institution_id
+                ORDER BY T.institution_id;
             """)
             results = cur.fetchall()
             if results:
                 labels = [row[1] for row in results]
-                data = [row[2] for row in results]  # Total de alunos matriculados
-                return {'labels': labels, 'data': data}
+                data_matriculados = [row[2] for row in results]  # Total de alunos matriculados
+                data_8ano = [row[3] for row in results]  # Alunos do 8° ano
+                return {'labels': labels, 'data_matriculados': data_matriculados, 'data_8ano': data_8ano}
     except Exception as e:
         print(f"Erro ao executar consulta SQL: {e}")
     finally:
         conn.close()
-    return {'labels': [], 'data': []}
+    return {'labels': [], 'data_matriculados': [], 'data_8ano': []}
 
 def list_scripts():
     scripts = [f for f in os.listdir(SCRIPTS_DIR) if f.endswith('.py')]
