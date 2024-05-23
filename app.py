@@ -66,7 +66,7 @@ def fetch_pie_chart_data():
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                WITH Alunos8Ano AS (
+                        WITH Alunos8Ano AS (
                     SELECT 
                         i.id AS institution_id,
                         i.name AS institution_name,
@@ -83,7 +83,7 @@ def fetch_pie_chart_data():
                     WHERE i.name ILIKE '%2024%'
                     AND c.name = 'Tauá'
                     AND i.id IN (335, 337)
-                    AND ic.name ILIKE '%8° ano%'
+                    AND ic.name ILIKE '%8%'
                     GROUP BY i.id, i.name
                 ),
                 TodosAlunosMatriculados AS (
@@ -103,14 +103,13 @@ def fetch_pie_chart_data():
                     WHERE i.name ILIKE '%2024%'
                     AND c.name = 'Tauá'
                     AND i.id IN (335, 336, 337, 338)
-                    AND ic.name NOT ILIKE '%8° ano%'
+                    AND ic.name NOT ILIKE '%8%'
                     GROUP BY i.id, i.name
                 )
                 SELECT 
                     T.institution_id,
                     T.institution_name,
-                    COALESCE(T.alunos_matriculados, 0) AS total_matriculados,
-                    COALESCE(A.alunos_8ano, 0) AS alunos_8ano
+                    COALESCE(T.alunos_matriculados, 0) AS total_matriculados
                 FROM 
                     TodosAlunosMatriculados T
                 LEFT JOIN Alunos8Ano A 
@@ -120,14 +119,14 @@ def fetch_pie_chart_data():
             results = cur.fetchall()
             if results:
                 labels = [row[1] for row in results]
-                data_matriculados = [row[2] for row in results]  # Total de alunos matriculados
-                data_8ano = [row[3] for row in results]  # Alunos do 8° ano
-                return {'labels': labels, 'data_matriculados': data_matriculados, 'data_8ano': data_8ano}
+                data = [row[2] for row in results]  # Total de alunos matriculados
+                return {'labels': labels, 'data': data}
     except Exception as e:
         print(f"Erro ao executar consulta SQL: {e}")
     finally:
         conn.close()
-    return {'labels': [], 'data_matriculados': [], 'data_8ano': []}
+    return {'labels': [], 'data': []}
+
 
 def list_scripts():
     scripts = [f for f in os.listdir(SCRIPTS_DIR) if f.endswith('.py')]
