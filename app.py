@@ -66,7 +66,7 @@ def fetch_pie_chart_data():
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                          SELECT 
+                SELECT 
                     i.id AS institution_id,
                     i.name AS institution_name,
                     COUNT(DISTINCT ie.user_id) AS total_matriculados
@@ -85,10 +85,11 @@ def fetch_pie_chart_data():
                 GROUP BY i.id, i.name
                 ORDER BY i.id;
             """)
-            result = cur.fetchone()  # Pega apenas a primeira linha
-            if result:
-                return {'labels': ['Total de Simulados Finalizados', 'Total de Alunos Matriculados'],
-                        'data': [result[1], result[2]]}
+            results = cur.fetchall()
+            if results:
+                labels = [row[1] for row in results]
+                data = [row[2] for row in results]  # Total de alunos matriculados
+                return {'labels': labels, 'data': data}
     except Exception as e:
         print(f"Erro ao executar consulta SQL: {e}")
     finally:
