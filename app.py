@@ -66,31 +66,10 @@ def fetch_pie_chart_data():
     try:
         with conn.cursor() as cur:
             cur.execute("""
-            WITH AlunosSimulado AS (
-                SELECT 
-                    c.name AS cidade,
-                    COUNT(DISTINCT users.id) AS alunos_finalizados
-                FROM 
-                    quiz_user_progresses qup  
-                INNER JOIN users ON users.id = qup.user_id 
-                INNER JOIN quizzes q ON q.id = qup.quiz_id 
-                INNER JOIN institution_enrollments ie ON ie.user_id = qup.user_id 
-                INNER JOIN institution_classrooms ic ON ic.id = ie.classroom_id  
-                INNER JOIN institution_levels il ON il.id = ic.level_id 
-                INNER JOIN institution_courses ic3 ON ic3.id = il.course_id 
-                INNER JOIN institution_colleges ic2 ON ic2.id = ic3.institution_college_id AND ic2.id = ie.college_id 
-                INNER JOIN institutions i ON i.id = ic2.institution_id  
-                INNER JOIN regions r ON ic2.region_id = r.id 
-                INNER JOIN cities c ON c.id = r.city_id 
-                WHERE qup.finished = TRUE 
-                AND i.name ILIKE '%2024%'
-                AND c.name = 'Tauá' -- Filtro específico para a cidade de Tauá
-                GROUP BY c.name
-            ),
-            TodosAlunosMatriculados AS (
-                SELECT 
-                    c.name AS cidade,
-                    COUNT(DISTINCT ie.user_id) AS alunos_matriculados
+                          SELECT 
+                    i.id AS institution_id,
+                    i.name AS institution_name,
+                    COUNT(DISTINCT ie.user_id) AS total_matriculados
                 FROM 
                     institution_enrollments ie
                 INNER JOIN institution_classrooms ic ON ic.id = ie.classroom_id  
@@ -101,20 +80,10 @@ def fetch_pie_chart_data():
                 INNER JOIN regions r ON ic2.region_id = r.id 
                 INNER JOIN cities c ON c.id = r.city_id 
                 WHERE i.name ILIKE '%2024%'
-                AND c.name = 'Tauá' -- Filtro específico para a cidade de Tauá
-                GROUP BY c.name
-            )
-            SELECT 
-                A.cidade,
-                COALESCE(A.alunos_finalizados, 0) AS "total finalizados",
-                COALESCE(T.alunos_matriculados, 0) AS "total matriculados"
-            FROM 
-                TodosAlunosMatriculados T
-            FULL OUTER JOIN AlunosSimulado A 
-                ON T.cidade = A.cidade
-            WHERE 
-                A.cidade = 'Tauá' -- Garantindo que apenas resultados para Tauá sejam exibidos
-            ORDER BY A.cidade; -- Ordenado por cidade, embora seja redundante para uma única cidade
+                AND c.name = 'Tauá' 
+                AND i.id IN (335, 336, 337, 338) -- Filtro específico para as instituições com os IDs fornecidos
+                GROUP BY i.id, i.name
+                ORDER BY i.id;
             """)
             result = cur.fetchone()  # Pega apenas a primeira linha
             if result:
