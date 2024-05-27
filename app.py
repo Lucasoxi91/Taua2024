@@ -18,7 +18,8 @@ def get_db_connection():
         database="de84slt1iucctv",
         user="adaptativa_read",
         password="pe71d6441e182e2458c5fd7701d60d1d0023f68f74dbd0ea0f8e1211d05a14374",
-        port="5432"
+        port="5432",
+        connect_timeout=30
     )
 
 class User(UserMixin):
