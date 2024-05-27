@@ -14,7 +14,7 @@ login_manager.login_view = 'login'
 
 def get_db_connection():
     return psycopg2.connect(
-        host="ec2-3-224-58-73.compute-1.amazonaws.com",
+        host="ec2-44-220-222-138.compute-1.amazonaws.com",
         database="de84slt1iucctv",
         user="adaptativa_read",
         password="pe71d6441e182e2458c5fd7701d60d1d0023f68f74dbd0ea0f8e1211d05a14374",
