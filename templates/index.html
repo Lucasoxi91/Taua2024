@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+
 {% block title %}Dashboard de Scripts{% endblock %}
+
 {% block body %}
 <head>
     <meta charset="UTF-8">
@@ -8,7 +10,6 @@
     <link href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -21,7 +22,7 @@
             justify-content: center;
             min-height: 100vh;
         }
-        img {
+        img{
             width: 350px;
         }
         .container {
@@ -40,14 +41,14 @@
             justify-content: space-around;
         }
         button {
-            background-color: #4CAF50;
+            background-color: #2ab31d;
             color: white;
-            padding: 15px 20px;
+            padding: 10px 15px;
             margin: 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 16px;
             transition: background-color 0.3s;
             width: 45%;
         }
@@ -58,44 +59,32 @@
             width: 30%;
             margin-top: 20px;
         }
+        .logout-btn {
+            font-size: 14px;
+            padding: 8px 16px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #2ab31d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 200px;
+        }
+        .logout-btn:hover {
+            background-color: rgb(50, 94, 53);
+        }
     </style>
 </head>
 <body>
+    <button class="logout-btn" onclick="location.href='/logout'">Desconectar</button>
     <img src="{{ url_for('static', filename='TAUA.png') }}" alt="Imagem de Tauá">
-    <div class="chart-container">
-        <canvas id="myChart"></canvas>
-    </div>
-    <script>
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-            labels: {{ pie_chart_data.labels | tojson }},
-            datasets: [{
-                label: 'Número de Alunos Matriculados',
-                data: {{ pie_chart_data.data | tojson }},
-                backgroundColor: [
-                    '#45a049',
-                    '#ff0000', 
-                    '#fff400',
-                    '#7900ff'   
-                ],
-                borderColor: [
-                    '#000000',
-                    '#000000',
-                    '#000000',
-                    '#000000'
-                ],
-                borderWidth: 1
-            }]
-        }
-        });
-    </script>
     <div class="container">
         <h1>Escolha um Relatório para Executar</h1>
         <div class="button-container">
             {% for script in scripts %}
-            <button onclick="location.href='{{ url_for('tabela') }}?script_name={{ script }}'" type="button">
+            <button onclick="location.href='/execute?script={{ script }}&display=tabela'" type="button">
                 {{ script.replace('.py', '') | replace('_', ' ') | title }}
             </button>
             {% endfor %}
