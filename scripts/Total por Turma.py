@@ -72,7 +72,7 @@ def execute_query(filters=None):
         A.cursos,
         A.alunos_simulado AS total_alunos_simulado,  
         T.alunos_matriculados AS total_alunos_matriculados,
-        A.avg_grade,
+        A.avg_grade AS média_notas,
         ROUND((A.alunos_simulado::DECIMAL / GREATEST(T.alunos_matriculados, 1)) * 100, 1) AS taxa_participacao
     FROM 
         TodosAlunosMatriculados T
