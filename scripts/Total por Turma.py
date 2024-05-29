@@ -71,10 +71,10 @@ def execute_query(filters=None):
         A.college AS Escola,
         A.turma AS Turma,
         A.ano AS Ano,  -- Inclui a coluna ano
-        A.nome_simulado AS Nome_simulado,
+        A.nome_simulado AS Nome_do_simulado,
         A.cursos As Disciplina,
-        A.alunos_simulado AS Total_alunos_simulado,  
-        T.alunos_matriculados AS Total_alunos_matriculados,
+        A.alunos_simulado AS simulados_concluidos,  
+        T.alunos_matriculados AS matriculados_na_turma,
         A.avg_grade AS Média_notas,
         ROUND((A.alunos_simulado::DECIMAL / GREATEST(T.alunos_matriculados, 1)) * 100, 1) AS taxa_participacao
     FROM 
