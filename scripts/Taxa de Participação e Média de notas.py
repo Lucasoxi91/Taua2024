@@ -72,8 +72,8 @@ SELECT
     qd.simulado,
     qd.n_user_id as finalizaram,
     ed.matriculados,
-    ROUND((CAST(qd.n_user_id AS numeric) / GREATEST(ed.matriculados, 1)) * 100, 1) AS participation,  -- Arredondado para uma casa decimal
-    qd.grade_avg
+    ROUND((CAST(qd.n_user_id AS numeric) / GREATEST(ed.matriculados, 1)) * 100, 1) AS participação,  -- Arredondado para uma casa decimal
+    qd.grade_avg AS média_notas
 FROM QuizData qd
 INNER JOIN EnrollmentData ed ON qd.curso = ed.curso AND qd.escola_id = ed.escola_id
 ORDER BY qd.curso, qd.escola, qd.simulado;
