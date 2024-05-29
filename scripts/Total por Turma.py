@@ -67,15 +67,15 @@ def execute_query(filters=None):
         GROUP BY ic2.name, ic.name, il.name  -- Adiciona a coluna level (ano) no GROUP BY
     )
     SELECT DISTINCT
-        A.municipio,
+        A.municipio AS Municipio,
         A.college AS Escola,
-        A.turma,
-        A.ano,  -- Inclui a coluna ano
-        A.nome_simulado,
-        A.cursos,
-        A.alunos_simulado AS total_alunos_simulado,  
-        T.alunos_matriculados AS total_alunos_matriculados,
-        A.avg_grade AS média_notas,
+        A.turma AS Turma,
+        A.ano AS Ano,  -- Inclui a coluna ano
+        A.nome_simulado AS Nome simulado,
+        A.cursos As Disciplina,
+        A.alunos_simulado AS Total_alunos_simulado,  
+        T.alunos_matriculados AS Total_alunos_matriculados,
+        A.avg_grade AS Média_notas,
         ROUND((A.alunos_simulado::DECIMAL / GREATEST(T.alunos_matriculados, 1)) * 100, 1) AS taxa_participacao
     FROM 
         TodosAlunosMatriculados T
