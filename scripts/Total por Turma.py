@@ -18,12 +18,11 @@ def get_db_connection():
 
 def execute_query(filters=None):
     base_query = """
-      WITH AlunosSimulado AS (
+    WITH AlunosSimulado AS (
         SELECT 
             'Tauá' AS municipio,
             ic2.name AS college,
             ic.name AS turma,
-            il.name AS ano,
             q.name AS nome_simulado,
             CASE 
                 WHEN q.name LIKE '%LP%' THEN 'Língua Portuguesa'
@@ -46,14 +45,13 @@ def execute_query(filters=None):
         AND (q.name LIKE '%Sim Geral%' OR q.name LIKE '%Geral%')
         AND i.name ILIKE '%2024%'
         AND LOWER(ic2.name) NOT IN ('wiquadro', 'teste', 'escola demonstração', 'escola1', 'escola2')
-        GROUP BY ic2.name, ic.name, il.name, q.name
+        GROUP BY ic2.name, ic.name, q.name
     ),
     TodosAlunosMatriculados AS (
         SELECT 
             'Tauá' AS municipio,
             ic2.name AS college,
             ic.name AS turma,
-            il.name AS ano,
             COUNT(DISTINCT ie.user_id) AS alunos_matriculados
         FROM 
             institution_enrollments ie
@@ -64,13 +62,12 @@ def execute_query(filters=None):
         INNER JOIN institutions i ON i.id = ic2.institution_id  
         WHERE i.name ILIKE '%2024%'
         AND LOWER(ic2.name) NOT IN ('wiquadro', 'teste', 'escola demonstração', 'escola1', 'escola2')
-        GROUP BY ic2.name, ic.name, il.name
+        GROUP BY ic2.name, ic.name
     )
     SELECT DISTINCT
         A.municipio,
         A.college,
         A.turma,
-        A.ano,
         A.nome_simulado,
         A.cursos,
         A.alunos_simulado AS total_alunos_simulado,  
@@ -80,33 +77,46 @@ def execute_query(filters=None):
     FROM 
         TodosAlunosMatriculados T
     JOIN AlunosSimulado A 
-        ON T.college = A.college AND T.turma = A.turma AND T.ano = A.ano
-    ORDER BY A.college, A.turma, A.ano, A.nome_simulado;
-    
+        ON T.college = A.college AND T.turma = A.turma
     """
-
+    
     if filters:
         conditions = []
-        values = []
         for key, value in filters.items():
             if key and value:
                 conditions.append(f"{key} ILIKE %s")
-                values.append(f"%{value}%")
         
         if conditions:
-            base_query = base_query.replace("ORDER BY", "WHERE " + " AND ".join(conditions) + " ORDER BY")
-
+            base_query += " WHERE " + " AND ".join(conditions)
+    
+    base_query += " ORDER BY A.college, A.turma, A.nome_simulado;"
+    
     conn = get_db_connection()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(base_query, tuple(values) if filters else ())
-            column_names = [desc[0] for desc in cur.description]
-            results = cur.fetchall()
-            return column_names, results
-    except Exception as e:
-        print(f"Error executing query: {e}")
-    finally:
-        conn.close()
+    if conn is not None:
+        try:
+            with conn.cursor() as cur:
+                print("Executing query...")
+                print(base_query)
+                if filters:
+                    print("With filters:", filters)
+                    cur.execute(base_query, list(filters.values()))
+                else:
+                    cur.execute(base_query)
+                
+                if cur.description:
+                    column_names = [desc[0] for desc in cur.description]
+                    results = cur.fetchall()
+                    print("Query executed successfully.")
+                    print(f"Columns: {column_names}")
+                    print(f"Results: {results[:5]}")  # Print the first 5 rows for debugging
+                    return (column_names, results)
+                else:
+                    print("Nenhum resultado encontrado.")
+                    return ([], [])
+        except Exception as e:
+            print(f"Falha na execução da consulta: {e}")
+        finally:
+            conn.close()
     return ([], [])  # Retorna listas vazias se a conexão falhar ou ocorrer uma exceção
 
 app = Flask(__name__)
