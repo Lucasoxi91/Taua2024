@@ -71,7 +71,7 @@ def execute_query(filters=None):
         A.college AS Escola,
         A.turma AS Turma,
         A.ano AS Ano,  -- Inclui a coluna ano
-        A.nome_simulado AS Nome simulado,
+        A.nome_simulado AS Nome_simulado,
         A.cursos As Disciplina,
         A.alunos_simulado AS Total_alunos_simulado,  
         T.alunos_matriculados AS Total_alunos_matriculados,
