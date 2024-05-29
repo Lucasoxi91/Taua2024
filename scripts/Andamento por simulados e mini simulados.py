@@ -69,10 +69,10 @@ TodosAlunosMatriculados AS (
 SELECT 
     T.escola,
     T.turma,
-    A.cursos, 
-    A.nome_simulado, 
+    A.cursos AS Disciplina, 
+    A.nome_simulado AS Simulado_Minisimulado, 
     COALESCE(A.alunos_simulado, 0) AS alunos_simulado, 
-    COALESCE(T.alunos_matriculados, 0) AS alunos_matriculados
+    COALESCE(T.alunos_matriculados, 0) AS Matriculados_na_Turma
 FROM 
     TodosAlunosMatriculados T
 LEFT JOIN AlunosSimulado A 
