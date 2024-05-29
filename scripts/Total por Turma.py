@@ -18,66 +18,71 @@ def get_db_connection():
 
 def execute_query(filters=None):
     base_query = """
-    WITH AlunosSimulado AS (
-        SELECT 
-            'Tauá' AS municipio,
-            ic2.name AS college,
-            ic.name AS turma,
-            q.name AS nome_simulado,
-            CASE 
-                WHEN q.name LIKE '%LP%' THEN 'Língua Portuguesa'
-                WHEN q.name LIKE '%MT%' THEN 'Matemática'
-            END AS cursos, 
-            COUNT(DISTINCT users.id) AS alunos_simulado,
-            AVG(qg.average)::NUMERIC(10,1) AS avg_grade
-        FROM 
-            quiz_user_progresses qup  
-        INNER JOIN users ON users.id = qup.user_id 
-        INNER JOIN quizzes q ON q.id = qup.quiz_id 
-        INNER JOIN institution_enrollments ie ON ie.user_id = qup.user_id 
-        INNER JOIN institution_classrooms ic ON ic.id = ie.classroom_id  
-        INNER JOIN institution_levels il ON il.id = ic.level_id 
-        INNER JOIN institution_courses ic3 ON ic3.id = il.course_id 
-        INNER JOIN institution_colleges ic2 ON ic2.id = ic3.institution_college_id
-        INNER JOIN institutions i ON i.id = ic2.institution_id  
-        INNER JOIN quiz_grades qg ON qg.user_id = users.id AND qg.quiz_id = q.id
-        WHERE qup.finished = TRUE 
-        AND (q.name LIKE '%Sim Geral%' OR q.name LIKE '%Geral%')
-        AND i.name ILIKE '%2024%'
-        AND LOWER(ic2.name) NOT IN ('wiquadro', 'teste', 'escola demonstração', 'escola1', 'escola2')
-        GROUP BY ic2.name, ic.name, q.name
-    ),
-    TodosAlunosMatriculados AS (
-        SELECT 
-            'Tauá' AS municipio,
-            ic2.name AS college,
-            ic.name AS turma,
-            COUNT(DISTINCT ie.user_id) AS alunos_matriculados
-        FROM 
-            institution_enrollments ie
-        INNER JOIN institution_classrooms ic ON ic.id = ie.classroom_id  
-        INNER JOIN institution_levels il ON il.id = ic.level_id 
-        INNER JOIN institution_courses ic3 ON ic3.id = il.course_id 
-        INNER JOIN institution_colleges ic2 ON ic2.id = ic3.institution_college_id 
-        INNER JOIN institutions i ON i.id = ic2.institution_id  
-        WHERE i.name ILIKE '%2024%'
-        AND LOWER(ic2.name) NOT IN ('wiquadro', 'teste', 'escola demonstração', 'escola1', 'escola2')
-        GROUP BY ic2.name, ic.name
-    )
-    SELECT DISTINCT
-        A.municipio,
-        A.college,
-        A.turma,
-        A.nome_simulado,
-        A.cursos,
-        A.alunos_simulado AS total_alunos_simulado,  
-        T.alunos_matriculados AS total_alunos_matriculados,
-        A.avg_grade AS média_notas,
-        ROUND((A.alunos_simulado::DECIMAL / GREATEST(T.alunos_matriculados, 1)) * 100, 1) AS taxa_participacao
+  WITH AlunosSimulado AS (
+    SELECT 
+        'Tauá' AS municipio,
+        ic2.name AS college,
+        ic.name AS turma,
+        il.name AS série,  -- Adiciona o nível (série)
+        q.name AS nome_simulado,
+        CASE 
+            WHEN q.name LIKE '%LP%' THEN 'Língua Portuguesa'
+            WHEN q.name LIKE '%MT%' THEN 'Matemática'
+        END AS cursos, 
+        COUNT(DISTINCT users.id) AS alunos_simulado,
+        AVG(qg.average)::NUMERIC(10,1) AS média_notas  -- Renomeia avg_grade para média_notas
     FROM 
-        TodosAlunosMatriculados T
-    JOIN AlunosSimulado A 
-        ON T.college = A.college AND T.turma = A.turma
+        quiz_user_progresses qup  
+    INNER JOIN users ON users.id = qup.user_id 
+    INNER JOIN quizzes q ON q.id = qup.quiz_id 
+    INNER JOIN institution_enrollments ie ON ie.user_id = qup.user_id 
+    INNER JOIN institution_classrooms ic ON ic.id = ie.classroom_id  
+    INNER JOIN institution_levels il ON il.id = ic.level_id  -- Adiciona a coluna level (série)
+    INNER JOIN institution_courses ic3 ON ic3.id = il.course_id 
+    INNER JOIN institution_colleges ic2 ON ic2.id = ic3.institution_college_id
+    INNER JOIN institutions i ON i.id = ic2.institution_id  
+    INNER JOIN quiz_grades qg ON qg.user_id = users.id AND qg.quiz_id = q.id
+    WHERE qup.finished = TRUE 
+    AND (q.name LIKE '%Sim Geral%' OR q.name LIKE '%Geral%')
+    AND i.name ILIKE '%2024%'
+    AND LOWER(ic2.name) NOT IN ('wiquadro', 'teste', 'escola demonstração', 'escola1', 'escola2')
+    GROUP BY ic2.name, ic.name, il.name, q.name  -- Adiciona a coluna level (série) no GROUP BY
+),
+TodosAlunosMatriculados AS (
+    SELECT 
+        'Tauá' AS municipio,
+        ic2.name AS college,
+        ic.name AS turma,
+        il.name AS série,  -- Adiciona o nível (série)
+        COUNT(DISTINCT ie.user_id) AS alunos_matriculados
+    FROM 
+        institution_enrollments ie
+    INNER JOIN institution_classrooms ic ON ic.id = ie.classroom_id  
+    INNER JOIN institution_levels il ON il.id = ic.level_id  -- Adiciona a coluna level (série)
+    INNER JOIN institution_courses ic3 ON ic3.id = il.course_id 
+    INNER JOIN institution_colleges ic2 ON ic2.id = ic3.institution_college_id 
+    INNER JOIN institutions i ON i.id = ic2.institution_id  
+    WHERE i.name ILIKE '%2024%'
+    AND LOWER(ic2.name) NOT IN ('wiquadro', 'teste', 'escola demonstração', 'escola1', 'escola2')
+    GROUP BY ic2.name, ic.name, il.name  -- Adiciona a coluna level (série) no GROUP BY
+)
+SELECT DISTINCT
+    A.municipio,
+    A.college,
+    A.turma,
+    A.série,  -- Inclui a coluna série
+    A.nome_simulado,
+    A.cursos,
+    A.alunos_simulado AS total_alunos_simulado,  
+    T.alunos_matriculados AS total_alunos_matriculados,
+    A.média_notas,  -- Renomeia avg_grade para média_notas
+    ROUND((A.alunos_simulado::DECIMAL / GREATEST(T.alunos_matriculados, 1)) * 100, 1) AS taxa_participacao
+FROM 
+    TodosAlunosMatriculados T
+JOIN AlunosSimulado A 
+    ON T.college = A.college AND T.turma = A.turma AND T.série = A.série  -- Adiciona a coluna série na condição JOIN
+ORDER BY A.college, A.turma, A.série, A.nome_simulado;  -- Adiciona a coluna série na ordenação
+
     """
     
     if filters:
