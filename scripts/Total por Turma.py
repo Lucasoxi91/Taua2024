@@ -18,26 +18,26 @@ def get_db_connection():
 
 def execute_query(filters=None):
     base_query = """
-    WITH AlunosSimulado AS (
+      WITH AlunosSimulado AS (
         SELECT 
             'Tauá' AS municipio,
             ic2.name AS college,
             ic.name AS turma,
-            il.name AS série,
+            il.name AS ano,
             q.name AS nome_simulado,
             CASE 
                 WHEN q.name LIKE '%LP%' THEN 'Língua Portuguesa'
                 WHEN q.name LIKE '%MT%' THEN 'Matemática'
             END AS cursos, 
             COUNT(DISTINCT users.id) AS alunos_simulado,
-            AVG(qg.average)::NUMERIC(10,1) AS média_notas
+            AVG(qg.average)::NUMERIC(10,1) AS avg_grade
         FROM 
             quiz_user_progresses qup  
         INNER JOIN users ON users.id = qup.user_id 
         INNER JOIN quizzes q ON q.id = qup.quiz_id 
         INNER JOIN institution_enrollments ie ON ie.user_id = qup.user_id 
         INNER JOIN institution_classrooms ic ON ic.id = ie.classroom_id  
-        INNER JOIN institution_levels il ON il.id = ic.level_id
+        INNER JOIN institution_levels il ON il.id = ic.level_id 
         INNER JOIN institution_courses ic3 ON ic3.id = il.course_id 
         INNER JOIN institution_colleges ic2 ON ic2.id = ic3.institution_college_id
         INNER JOIN institutions i ON i.id = ic2.institution_id  
@@ -53,12 +53,12 @@ def execute_query(filters=None):
             'Tauá' AS municipio,
             ic2.name AS college,
             ic.name AS turma,
-            il.name AS série,
+            il.name AS ano,
             COUNT(DISTINCT ie.user_id) AS alunos_matriculados
         FROM 
             institution_enrollments ie
         INNER JOIN institution_classrooms ic ON ic.id = ie.classroom_id  
-        INNER JOIN institution_levels il ON il.id = ic.level_id
+        INNER JOIN institution_levels il ON il.id = ic.level_id 
         INNER JOIN institution_courses ic3 ON ic3.id = il.course_id 
         INNER JOIN institution_colleges ic2 ON ic2.id = ic3.institution_college_id 
         INNER JOIN institutions i ON i.id = ic2.institution_id  
@@ -70,18 +70,19 @@ def execute_query(filters=None):
         A.municipio,
         A.college,
         A.turma,
-        A.série,
+        A.ano,
         A.nome_simulado,
         A.cursos,
         A.alunos_simulado AS total_alunos_simulado,  
         T.alunos_matriculados AS total_alunos_matriculados,
-        A.média_notas,
+        A.avg_grade AS média_notas,
         ROUND((A.alunos_simulado::DECIMAL / GREATEST(T.alunos_matriculados, 1)) * 100, 1) AS taxa_participacao
     FROM 
         TodosAlunosMatriculados T
     JOIN AlunosSimulado A 
-        ON T.college = A.college AND T.turma = A.turma AND T.série = A.série
-    ORDER BY A.college, A.turma, A.série, A.nome_simulado;
+        ON T.college = A.college AND T.turma = A.turma AND T.ano = A.ano
+    ORDER BY A.college, A.turma, A.ano, A.nome_simulado;
+    
     """
 
     if filters:
