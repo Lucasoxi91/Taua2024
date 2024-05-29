@@ -68,7 +68,7 @@ def execute_query(filters=None):
     )
     SELECT DISTINCT
         A.municipio,
-        A.college,
+        A.college AS Escola,
         A.turma,
         A.ano,  -- Inclui a coluna ano
         A.nome_simulado,
