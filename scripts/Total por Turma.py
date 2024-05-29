@@ -80,10 +80,8 @@ SELECT DISTINCT
 FROM 
     TodosAlunosMatriculados T
 JOIN AlunosSimulado A 
-    ON T.college = A.college AND T.turma = A.turma AND T.série = A.série  -- Adiciona a coluna série na condição JOIN
-ORDER BY A.college, A.turma, A.série, A.nome_simulado;  -- Adiciona a coluna série na ordenação
-
-    """
+    ON T.college = A.college AND T.turma = A.turma AND T.série = A.série 
+ORDER BY A.college, A.turma, A.série, A.nome_simulado;    """
     
     if filters:
         conditions = []
