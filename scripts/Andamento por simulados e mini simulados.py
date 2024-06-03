@@ -71,7 +71,7 @@ SELECT
     T.turma,
     A.cursos AS Disciplina, 
     A.nome_simulado AS Simulado_Minisimulado, 
-    COALESCE(A.alunos_simulado, 0) AS alunos_simulado, 
+    COALESCE(A.alunos_simulado, 0) AS Simulados_concluídos, 
     COALESCE(T.alunos_matriculados, 0) AS Matriculados_na_Turma
 FROM 
     TodosAlunosMatriculados T
